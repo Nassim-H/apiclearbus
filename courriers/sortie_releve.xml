@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<clearbus>
+    <liste-enveloppes>
+        <enveloppe>
+            <numero>6373976748</numero>
+            <numeroparent>7514244257</numeroparent>
+            <niveaudeservice>envoi simple</niveaudeservice>
+            <qualifiee>non</qualifiee>
+            <nature>ACCUSE_DE_RECEPTION</nature>
+            <destinataire>
+                <categorie>professionnel</categorie>
+                <civilite>M.</civilite>
+                <nom>BENDJEBARA</nom>
+                <prenom>Mehdi</prenom>
+                <entreprise>ULTRAPAREBRISE TEST</entreprise>
+                <fonction/>
+                <adresse>5110 Rue Jean Monnet</adresse>
+                <codepostal>62490</codepostal>
+                <commune>Vitry-en-Artois</commune>
+                <pays/>
+                <email/>
+                <tel_principal/>
+                <tel_secondaire/>
+                <fax/>
+            </destinataire>
+            <emetteur>
+                <categorie>professionnel</categorie>
+                <civilite/>
+                <nom>ClearBUS</nom>
+                <prenom/>
+                <entreprise>ClearBUS</entreprise>
+                <fonction>Opérateur postal numérique</fonction>
+                <adresse>25 rue Gabriel Péri</adresse>
+                <codepostal>38016</codepostal>
+                <commune>Grenoble Cedex 1</commune>
+                <pays/>
+                <email>contact@clearbus.fr</email>
+                <tel_principal>0476852645</tel_principal>
+                <tel_secondaire/>
+                <fax>0485029018</fax>
+            </emetteur>
+            <document>
+                <meta>
+                    <titre>Avis de réception</titre>
+                    <langue>fr</langue>
+                    <datecreation>2025-05-06T19:15:50</datecreation>
+                    <datemodification>2025-05-06T19:15:50</datemodification>
+                    <auteur>ClearBus</auteur>
+                    <sujet/>
+                    <version/>
+                    <description>Attestation de réception par le destinataire</description>
+                </meta>
+                <fichiers>
+                    <courrier>
+                        <nom>AR_7514244257.pdf</nom>
+                        <taille>60888</taille>
+                    </courrier>
+                </fichiers>
+            </document>
+            <statut>
+                <date>2025-05-06T17:18:54</date>
+                <reussi>oui</reussi>
+                <erreur/>
+            </statut>
+        </enveloppe>
+    </liste-enveloppes>
+    <reponse>
+        <service>relever_abonne</service>
+        <date>2025-05-06T17:18:54</date>
+        <reussi>oui</reussi>
+        <erreur/>
+    </reponse>
+</clearbus>
+

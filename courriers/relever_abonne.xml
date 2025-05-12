@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<clearbus>
+  <session>
+    <service>relever_abonne</service>
+    <identifiant>678MK95</identifiant>
+    <motdepasse>Clearbus</motdepasse>
+  </session>
+  <xml>
+    <sortie>/app/courriers/sortie_releve.xml</sortie>
+  </xml>
+  <traces>
+    <activer>oui</activer>
+  </traces>
+</clearbus>

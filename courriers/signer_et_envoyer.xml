@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<clearbus>
+  <session>
+    <service>signer_et_envoyer</service>
+    <identifiant>586MJ60</identifiant>
+    <motdepasse>Clearbus1</motdepasse>
+    <code>653940</code>
+  </session>
+  <destinataire>
+    <categorie>professionnel</categorie>
+    <entreprise>ULTRAPAREBRISE TEST</entreprise>
+    <civilite>Monsieur</civilite>
+    <adresseL1>5110 Rue Jean Monnet</adresseL1>
+    <commune>Vitry-en-Artois</commune>
+    <codepostal>62490</codepostal>
+    <email>exemple@gmail.com</email>
+    <tel_principal>+33 1 23 45 67 89</tel_principal>
+  </destinataire>
+  <enveloppe>
+    <niveaudeservice>recommandeAR</niveaudeservice>
+    <courrier>/app/courriers/courrier.pdf</courrier>
+  </enveloppe>
+  <xml>
+    <sortie>/app/courriers/sortie.xml</sortie>
+  </xml>
+  <meta>
+   <description>Email envoyé depuis l'API en recommandé</description>
+  </meta>
+  <traces>
+    <activer>oui</activer>
+  </traces>
+</clearbus>

@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  clearbus_api:
+    build: .
+    container_name: clearbus_api
+    ports:
+      - "5000:5000"  # Expose Flask sur le port 5000
+    volumes:
+      - ./courriers:/app/courriers  # Partage des fichiers XML
+    environment:
+      - ACLIC_PATH=/usr/local/bin
+      # - FLASK_ENV=development
+      - PYTHONUNBUFFERED=1  # ✅ Désactive le buffering des prints
+
+    command: ["python", "api_clearbus.py"]

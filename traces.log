@@ -1,0 +1,33 @@
+2025-03-05T11:14:02	- ##############################
+2025-03-05T11:14:02	- ###### START APPLICATION #####
+2025-03-05T11:14:02	- ##############################
+2025-03-05T11:14:02	- setEmplacementExtraction - erreur de creation du repertoire 
+2025-03-05T11:14:02	- config abonne dans:/home/alien/.config/ClearBus/586MJ60
+2025-03-05T11:14:02	- Le fichier /mnt/c/Users/Utilisateur/Documents/Suricate/UPB/API/config n'existe pas !
+2025-03-05T11:14:03	-  > ExceptionsClearBus 101 <
+2025-03-05T11:14:03	- CRITIQUE
+2025-03-05T11:14:03	- Session::init - Liste vide des @IP serveurs frontaux dans le fichier de configuration !
+2025-03-05T11:14:03	- 
+2025-03-05T11:14:03	- AClic::traiter - ExceptionsClearBus
+2025-03-05T11:17:48	- ##############################
+2025-03-05T11:17:48	- ###### START APPLICATION #####
+2025-03-05T11:17:48	- ##############################
+2025-03-05T11:17:48	- setEmplacementExtraction - erreur de creation du repertoire 
+2025-03-05T11:17:48	- config abonne dans:/home/alien/.config/ClearBus/586MJ60
+2025-03-05T11:17:48	- Le fichier /mnt/c/Users/Utilisateur/Documents/Suricate/UPB/API/config n'existe pas !
+2025-03-05T11:17:48	-  > ExceptionsClearBus 101 <
+2025-03-05T11:17:48	- CRITIQUE
+2025-03-05T11:17:48	- Session::init - Liste vide des @IP serveurs frontaux dans le fichier de configuration !
+2025-03-05T11:17:48	- 
+2025-03-05T11:17:48	- AClic::traiter - ExceptionsClearBus
+2025-03-05T11:30:10	- ##############################
+2025-03-05T11:30:10	- ###### START APPLICATION #####
+2025-03-05T11:30:10	- ##############################
+2025-03-05T11:30:10	- setEmplacementExtraction - erreur de creation du repertoire 
+2025-03-05T11:30:10	- config abonne dans:/home/alien/.config/ClearBus/586MJ60
+2025-03-05T11:30:10	- Le fichier /mnt/c/Users/Utilisateur/Documents/Suricate/UPB/API/config n'existe pas !
+2025-03-05T11:30:10	-  > ExceptionsClearBus 101 <
+2025-03-05T11:30:10	- CRITIQUE
+2025-03-05T11:30:10	- Session::init - Liste vide des @IP serveurs frontaux dans le fichier de configuration !
+2025-03-05T11:30:10	- 
+2025-03-05T11:30:10	- AClic::traiter - ExceptionsClearBus

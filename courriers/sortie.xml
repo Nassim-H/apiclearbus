@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<clearbus>
+    <reponse>
+        <service>signer_et_envoyer</service>
+        <date>2025-05-08T08:47:27</date>
+        <reussi>oui</reussi>
+        <numero>4196216174</numero>
+        <erreur/>
+    </reponse>
+</clearbus>
+
