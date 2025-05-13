@@ -310,43 +310,46 @@ def envoyer_email():
     if isinstance(piecesjointes_urls, str):
         piecesjointes_urls = [piecesjointes_urls]
 
-    if not all([factureid, destinataire, nom, adresseL1, commune, codepostal]):
+    if not all([factureid, destinataire, nom, adresseL1, commune, codepostal, mot_de_passe, identifiant]):
         return jsonify({
             "status": "error",
-            "message": "Les champs 'factureid', 'destinataire', 'nom', 'adresseL1', 'commune',  'codepostal', 'identifiant' et 'mdp' sont obligatoires."
+            "message": "Champs obligatoires manquants."
         }), 400
 
     logs = []
+
+    # 🧹 Nettoyage des anciens fichiers PDF
+    for f in os.listdir(CONFIG["UPLOAD_FOLDER"]):
+        if f.endswith(".pdf"):
+            try:
+                os.remove(os.path.join(CONFIG["UPLOAD_FOLDER"], f))
+            except Exception as e:
+                logs.append(f"❌ Erreur suppression de {f} : {e}")
+    logs.append("🧹 Nettoyage du dossier terminé")
+
+    # 📥 Télécharger et fusionner les pièces jointes
     fichiers_telecharges = telecharger_pieces_jointes_zapier(piecesjointes_urls)
-    logs.append(f"✅ Fichiers téléchargés / extraits : {fichiers_telecharges}")
+    logs.append(f"✅ Fichiers téléchargés : {fichiers_telecharges}")
 
     fichiers_pdf = [os.path.join(CONFIG["UPLOAD_FOLDER"], f) for f in fichiers_telecharges if f.endswith(".pdf")]
     courrier_path = os.path.join(CONFIG["UPLOAD_FOLDER"], "courrier.pdf")
-    if os.path.exists(courrier_path):
-        os.remove(courrier_path)
-    if fichiers_pdf:
-        fusionner_pdfs(fichiers_pdf, courrier_path)
-        logs.append(f"📎 Fusion terminée dans : {courrier_path}")
-    else:
+
+    if not fichiers_pdf:
         logs.append("⚠️ Aucun fichier PDF valide à fusionner")
-        return jsonify({
-            "status": "error",
-            "message": "Aucun fichier PDF valide à fusionner",
-            "logs": logs
-        }), 400
+        return jsonify({"status": "error", "message": "Aucun fichier PDF valide à fusionner", "logs": logs}), 400
 
+    fusionner_pdfs(fichiers_pdf, courrier_path)
+    logs.append(f"📎 Fusion créée dans : {courrier_path}")
 
+    # 📄 Préparation du XML
     xml_file_path = os.path.join(CONFIG["UPLOAD_FOLDER"], "signer_et_envoyer.xml")
     sortie_xml_path = os.path.join(CONFIG["UPLOAD_FOLDER"], "sortie.xml")
-    archive_dir = os.path.join(CONFIG["UPLOAD_FOLDER"], "archives")
-    os.makedirs(archive_dir, exist_ok=True)
-
     if os.path.exists(sortie_xml_path):
         os.remove(sortie_xml_path)
 
     totp_code = calculer_totp()
     if not totp_code:
-        return jsonify({"status": "error", "message": "Erreur lors du calcul du code TOTP"}), 500
+        return jsonify({"status": "error", "message": "Erreur TOTP"}), 500
 
     xml_content = f"""<?xml version="1.0" encoding="utf-8"?>
 <clearbus>
@@ -381,50 +384,50 @@ def envoyer_email():
   </traces>
 </clearbus>"""
 
-    with open(xml_file_path, "w") as xml_file:
-        xml_file.write(xml_content)
+    with open(xml_file_path, "w") as f:
+        f.write(xml_content)
 
+    # ▶️ Lancer aClic
     try:
-        result = subprocess.run([CONFIG["ACLIC_BIN"], f"xml_entree={xml_file_path}"],
-                                capture_output=True, text=True)
+        result = subprocess.run([CONFIG["ACLIC_BIN"], f"xml_entree={xml_file_path}"], capture_output=True, text=True)
 
         if result.returncode != 0:
             return jsonify({
                 "status": "error",
-                "message": f"aClic a retourné une erreur : {result.stderr}"
+                "message": f"Erreur aClic : {result.stderr}",
+                "logs": logs
             }), 500
 
-        if os.path.exists(sortie_xml_path):
-            with open(sortie_xml_path, "r") as file:
-                xml_result = file.read()
+        if not os.path.exists(sortie_xml_path):
+            return jsonify({"status": "error", "message": "Pas de fichier de sortie XML"}), 500
 
+        # 📤 Lire le XML généré
+        with open(sortie_xml_path, "r") as file:
+            xml_result = file.read()
 
-            reponse_node = ET.fromstring(xml_result)
-            root = reponse_node.find("reponse")
+        reponse_node = ET.fromstring(xml_result)
+        root = reponse_node.find("reponse")
+        pli_id = root.find("numero").text if root.find("numero") is not None else "Inconnu"
+        date_envoi = root.find("date").text if root.find("date") is not None else "Inconnue"
 
-            pli_id = root.find("numero").text if root.find("numero") is not None else "Inconnu"
-            date_envoi = root.find("date").text if root.find("date") is not None else "Inconnue"
+        enregistrer_envoi_csv(factureid, pli_id, date_envoi)
 
-            # ✅ Sauvegarde CSV locale
-            enregistrer_envoi_csv(factureid, pli_id, date_envoi)
-
-            reponse = {
+        return jsonify({
+            "status": "success",
+            "message": "Email envoyé avec succès",
+            "reponse": {
                 "statut": root.find("reussi").text,
                 "service": root.find("service").text,
                 "reference": pli_id,
                 "date_envoi": date_envoi,
                 "xml-content": xml_content,
-                "logs": logs,
-                "fichier_pdf_genere": courrier_path
+                "pdf_genere": courrier_path,
+                "logs": logs
             }
-
-            return jsonify({"status": "success", "message": "Email envoyé avec succès", "reponse": reponse})
-
-        else:
-            return jsonify({"status": "error", "message": "Fichier de sortie non trouvé"}), 500
+        }), 200
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"status": "error", "message": str(e), "logs": logs}), 500
 
 def is_zip_file(content):
     return content[:4] == b'PK\x03\x04'
@@ -443,6 +446,16 @@ def recevoir_email_test_zapier():
 
         print(f"🔗 URLs de pièces jointes reçues : {piecesjointes_urls}")
 
+        # 🧹 Nettoyer les anciens fichiers PDF dans le dossier
+        for f in os.listdir(CONFIG["UPLOAD_FOLDER"]):
+            if f.endswith(".pdf"):
+                try:
+                    os.remove(os.path.join(CONFIG["UPLOAD_FOLDER"], f))
+                except Exception as e:
+                    print(f"❌ Erreur suppression de {f} : {e}")
+
+        print("🧹 Dossier nettoyé avant téléchargement")
+
         # Télécharger les fichiers
         fichiers_telecharges = telecharger_pieces_jointes_zapier(piecesjointes_urls)
         print(f"✅ Fichiers téléchargés / extraits : {fichiers_telecharges}")
@@ -451,6 +464,9 @@ def recevoir_email_test_zapier():
         fichiers_pdf = [os.path.join(CONFIG["UPLOAD_FOLDER"], f) for f in fichiers_telecharges if f.endswith(".pdf")]
         print(f"📄 Fichiers PDF à fusionner : {fichiers_pdf}")
         fusion_path = os.path.join(CONFIG["UPLOAD_FOLDER"], "fusion_test.pdf")
+
+        if os.path.exists(fusion_path):
+            os.remove(fusion_path)
 
         if fichiers_pdf:
             fusionner_pdfs(fichiers_pdf, fusion_path)
@@ -473,6 +489,7 @@ def recevoir_email_test_zapier():
             "message": "Erreur pendant le traitement",
             "logs": logs
         }), 500
+
 
 
 @app.route("/historique-envois/", methods=["GET"])
