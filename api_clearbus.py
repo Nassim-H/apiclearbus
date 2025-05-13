@@ -108,21 +108,32 @@ def telecharger_pieces_jointes_zapier(urls, dossier_destination=None):
             filename = os.path.basename(parsed_url.path) or f"piece_jointe_{i+1}"
 
             if is_zip_file(content):
-                print(f"📦 Contenu détecté comme ZIP (fichier : {filename})")
+                print(f"📦 ZIP détecté : {filename}")
                 with ZipFile(io.BytesIO(content)) as zip_file:
-                    print(f"📦 Fichiers dans le ZIP : {zip_file.namelist()}")
-                    for name in zip_file.namelist():
+                    entries = zip_file.namelist()
+                    print(f"📦 Contenu ZIP : {entries}")
+
+                    for name in entries:
                         if not name.lower().endswith(".pdf"):
-                            print(f"⛔ Fichier ignoré : {name}")
+                            print(f"❌ Ignoré (non-PDF) : {name}")
                             continue
-                        safe_name = f"{i+1}_{os.path.basename(name)}"
-                        dest_path = os.path.join(dossier_destination, safe_name)
-                        with zip_file.open(name) as source, open(dest_path, "wb") as out_file:
-                            shutil.copyfileobj(source, out_file)
-                            fichiers_sauvegardes.append(safe_name)
-                            print(f"✅ PDF extrait : {safe_name}")
+
+                        # Lire et vérifier contenu
+                        with zip_file.open(name) as source:
+                            pdf_bytes = source.read()
+                            if not pdf_bytes:
+                                print(f"⚠️ Fichier vide ignoré : {name}")
+                                continue
+
+                            safe_name = f"{i+1}_{os.path.basename(name)}"
+                            dest_path = os.path.join(dossier_destination, safe_name)
+
+                            with open(dest_path, "wb") as out_file:
+                                out_file.write(pdf_bytes)
+                                fichiers_sauvegardes.append(safe_name)
+                                print(f"✅ PDF extrait : {safe_name}")
             else:
-                # Cas normal : fichier direct
+                # Cas direct (PDF hors zip)
                 if not filename.endswith(".pdf"):
                     filename = f"piece_jointe_{i + 1}.pdf"
 
@@ -133,10 +144,15 @@ def telecharger_pieces_jointes_zapier(urls, dossier_destination=None):
                 print(f"✅ Fichier PDF enregistré : {filename}")
 
         except Exception as e:
-            print(f"❌ Erreur pendant traitement de {url} : {e}")
+            print(f"❌ Erreur URL {url} : {e}")
             fichiers_sauvegardes.append(f"Erreur: {str(e)}")
 
+    if not fichiers_sauvegardes or all(f.startswith("Erreur") for f in fichiers_sauvegardes):
+        raise Exception("Aucune pièce jointe PDF valide téléchargée.")
+
     return fichiers_sauvegardes
+
+
 
 def traiter_accuse_reception(numero, numeroparent):
     """
