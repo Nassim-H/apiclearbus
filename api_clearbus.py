@@ -288,6 +288,8 @@ def envoyer_email():
     codepostal = data.get("codepostal")
     contenu = data.get("contenu", "")
     piecesjointes_urls = data.get("piecesjointes", [])
+    mot_de_passe = data.get("mdp")
+    identifiant = data.get("identifiant")
 
     if isinstance(piecesjointes_urls, str):
         piecesjointes_urls = [piecesjointes_urls]
@@ -295,7 +297,7 @@ def envoyer_email():
     if not all([factureid, destinataire, nom, adresseL1, commune, codepostal]):
         return jsonify({
             "status": "error",
-            "message": "Les champs 'factureid', 'destinataire', 'nom', 'adresseL1', 'commune' et 'codepostal' sont obligatoires."
+            "message": "Les champs 'factureid', 'destinataire', 'nom', 'adresseL1', 'commune',  'codepostal', 'identifiant' et 'mdp' sont obligatoires."
         }), 400
 
     piecesjointes = telecharger_pieces_jointes_zapier(piecesjointes_urls)
@@ -321,8 +323,8 @@ def envoyer_email():
 <clearbus>
   <session>
     <service>signer_et_envoyer</service>
-    <identifiant>586MJ60</identifiant>
-    <motdepasse>Clearbus1</motdepasse>
+    <identifiant>{identifiant}</identifiant>
+    <motdepasse>{mot_de_passe}</motdepasse>
     <code>{totp_code}</code>
   </session>
   <destinataire>
@@ -382,6 +384,7 @@ def envoyer_email():
                 "service": root.find("service").text,
                 "reference": pli_id,
                 "date_envoi": date_envoi,
+                "xml-content": xml_content,
             }
 
             return jsonify({"status": "success", "message": "Email envoyé avec succès", "reponse": reponse})
