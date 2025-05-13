@@ -316,12 +316,25 @@ def envoyer_email():
             "message": "Les champs 'factureid', 'destinataire', 'nom', 'adresseL1', 'commune',  'codepostal', 'identifiant' et 'mdp' sont obligatoires."
         }), 400
 
-    piecesjointes = telecharger_pieces_jointes_zapier(piecesjointes_urls)
-    print(f"✅ Pièces jointes téléchargées : {piecesjointes}")
+    logs = []
+    fichiers_telecharges = telecharger_pieces_jointes_zapier(piecesjointes_urls)
+    logs.append(f"✅ Fichiers téléchargés / extraits : {fichiers_telecharges}")
 
-    fichiers_pdf = [os.path.join(CONFIG["UPLOAD_FOLDER"], f) for f in piecesjointes]
+    fichiers_pdf = [os.path.join(CONFIG["UPLOAD_FOLDER"], f) for f in fichiers_telecharges if f.endswith(".pdf")]
     courrier_path = os.path.join(CONFIG["UPLOAD_FOLDER"], "courrier.pdf")
-    fusionner_pdfs(fichiers_pdf, courrier_path)
+    if os.path.exists(courrier_path):
+        os.remove(courrier_path)
+    if fichiers_pdf:
+        fusionner_pdfs(fichiers_pdf, courrier_path)
+        logs.append(f"📎 Fusion terminée dans : {courrier_path}")
+    else:
+        logs.append("⚠️ Aucun fichier PDF valide à fusionner")
+        return jsonify({
+            "status": "error",
+            "message": "Aucun fichier PDF valide à fusionner",
+            "logs": logs
+        }), 400
+
 
     xml_file_path = os.path.join(CONFIG["UPLOAD_FOLDER"], "signer_et_envoyer.xml")
     sortie_xml_path = os.path.join(CONFIG["UPLOAD_FOLDER"], "sortie.xml")
@@ -401,6 +414,8 @@ def envoyer_email():
                 "reference": pli_id,
                 "date_envoi": date_envoi,
                 "xml-content": xml_content,
+                "logs": logs,
+                "fichier_pdf_genere": courrier_path
             }
 
             return jsonify({"status": "success", "message": "Email envoyé avec succès", "reponse": reponse})
